@@ -30,11 +30,12 @@
         .scanner-laser {
             animation: laserMove 2.5s infinite linear;
         }
-        /* ซ่อนข้อความและปุ่มมาตรฐานที่ดูรกของไลบรารีต้นทาง */
-        #reader img { display: none !important; }
-        #reader header { display: none !important; }
-        #reader div { border: none !important; }
-        #reader button { display: none !important; }
+        /* ล้างสไตล์ของวิดีโอที่ได้จาก Html5Qrcode ให้เต็มกรอบพอดี */
+        #reader video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen text-gray-800">
@@ -198,13 +199,16 @@
             <p class="text-xs text-gray-400 mt-1" id="scanner-target-name">กำลังตรวจสอบเป้าหมายฐาน...</p>
         </div>
 
-        <div class="relative w-72 h-72 md:w-80 md:h-80 mx-auto my-auto flex items-center justify-center">
-            <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-teal-400 rounded-tl-lg"></div>
-            <div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-teal-400 rounded-tr-lg"></div>
-            <div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-teal-400 rounded-bl-lg"></div>
-            <div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-teal-400 rounded-br-lg"></div>
-            <div class="scanner-laser absolute left-2 right-2 h-1 bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_12px_rgba(45,212,191,0.8)] z-10 rounded-full"></div>
-            <div id="reader" class="w-full h-full object-cover overflow-hidden rounded-lg opacity-80"></div>
+        <!-- หน้าจอส่องกล้องครอบ HUD ดีไซน์ไซไฟ -->
+        <div class="relative w-72 h-72 md:w-80 md:h-80 mx-auto my-auto flex items-center justify-center bg-black rounded-xl overflow-hidden">
+            <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-teal-400 rounded-tl-lg z-20"></div>
+            <div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-teal-400 rounded-tr-lg z-20"></div>
+            <div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-teal-400 rounded-bl-lg z-20"></div>
+            <div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-teal-400 rounded-br-lg z-20"></div>
+            <div class="scanner-laser absolute left-2 right-2 h-1 bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_12px_rgba(45,212,191,0.8)] z-20 rounded-full"></div>
+            
+            <!-- ดึงวิดีโอสดผ่านแท็ก Reader โดยใช้ API ระดับล่างเพื่อความเสถียรสูงสุด -->
+            <div id="reader" class="w-full h-full"></div>
         </div>
 
         <div class="w-full text-center pb-6">
@@ -219,19 +223,18 @@
 
     <!-- ================= APPLICATION LOGIC (JAVASCRIPT) ================= -->
     <script>
-        // 1. ระบุรหัสเว็บแอปพลิเคชัน (URL Web App ที่ได้จาก Google Apps Script)
         const API_URL = "https://script.google.com/macros/s/AKfycbxSW9WQKBNlFs2ObuSL_Gc3o3ON9fk_DTl69oXemwI1q70eX_bapv9bBvHeuK6DZcYs/exec"; 
 
-        // 2. ตัวแปรสถานะภายในแอปพลิเคชัน
         let currentUser = null;
         let currentBaseId = null;
         let quizList = [];
         let currentQuizIndex = 0;
         let scoreCounter = 0;
         let selectedAnswer = null;
-        let html5QrcodeScanner = null;
+        
+        // ตัวแปรเก็บอ็อบเจกต์กล้องแบบ API กระเป๋าตังค์ ตัวท็อปความเสถียร
+        let html5QrcodeInstance = null;
 
-        // 3. ฟังก์ชันเล่นเสียงเอฟเฟกต์
         function playSound(audioId) {
             const audio = document.getElementById(audioId);
             if (audio) {
@@ -240,7 +243,6 @@
             }
         }
 
-        // 4. ฟังก์ชันส่งข้อมูลติดต่อ API บอร์ดหลังบ้าน
         async function callAPI(payload) {
             const res = await fetch(API_URL, {
                 method: 'POST',
@@ -249,7 +251,6 @@
             return await res.json();
         }
 
-        // 5. ระบบสลับหน้าลงชื่อเข้าใช้ และ สมัครสมาชิกใหม่
         function toggleAuthMode(mode) {
             playSound('sound-click');
             const btnLogin = document.getElementById('btn-mode-login');
@@ -270,7 +271,6 @@
             }
         }
 
-        // 6. ฟังก์ชันจัดการลงทะเบียนนักเรียนใหม่เข้า Google Sheets
         async function handleRegisterSubmit() {
             playSound('sound-click');
             const student_id = document.getElementById('reg-id').value.trim();
@@ -305,7 +305,6 @@
             }
         }
 
-        // 7. ฟังก์ชันเข้าสู่ระบบ
         async function handleLoginSubmit() {
             playSound('sound-click');
             const student_id = document.getElementById('login-id').value.trim();
@@ -333,7 +332,6 @@
             }
         }
 
-        // 8. โหลดหน้าแผงข้อมูลฐานความรู้ประจำตัวนักเรียน
         async function loadDashboard() {
             if (!currentUser) return;
             const data = await callAPI({ action: 'getDashboard', student_id: currentUser.id });
@@ -365,19 +363,18 @@
                     `;
                 });
 
-                // ดักจับ Event สำหรับการกดสแกนแต่ละปุ่มแบบไดนามิก
                 document.querySelectorAll('.btn-scan-trigger').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const baseId = e.currentTarget.getAttribute('data-id');
                         const baseName = e.currentTarget.getAttribute('data-name');
-                        if (baseId) prepareQRScanner(baseId, baseName); // เปลี่ยนไปเรียกฟังก์ชันขออนุญาตกล้องก่อน
+                        if (baseId) prepareQRScanner(baseId, baseName);
                     });
                 });
             }
             loadLeaderboard();
         }
 
-        // 9. ฟังก์ชันตรวจสอบสิทธิ์และเด้งป๊อปอัป SweetAlert2 ขอเปิดใช้งานกล้อง
+        // 🛠️ อัปเดต: ระบบ Popup ยอมรับข้อตกลงก่อนเปิดสตรีมกล้อง
         function prepareQRScanner(baseId, baseName) {
             playSound('sound-click');
             
@@ -386,7 +383,7 @@
                 text: `ระบบต้องการเปิดใช้งานกล้องถ่ายรูปของมือถือคุณ เพื่อทำการสแกนตรวจสอบข้อมูล "${baseName}"`,
                 icon: 'info',
                 showCancelButton: true,
-                confirmButtonColor: '#0f766e', // สีเขียวคู่สีหลักของเว็บ
+                confirmButtonColor: '#0f766e', 
                 cancelButtonColor: '#6b7280',
                 confirmButtonText: '<i class="fa-solid fa-camera mr-1"></i> อนุญาตและเปิดกล้อง',
                 cancelButtonText: 'ยกเลิก',
@@ -397,42 +394,57 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // หากผู้ใช้กดยืนยันคำขอ ให้ทำการเปิดใช้งานกล้องทันที
                     openQRScanner(baseId, baseName);
                 }
             });
         }
 
-        // ฟังก์ชันสั่งเริ่มต้นทำงานอุปกรณ์กล้องหลังจาการยืนยันโมดอล
+        // 🚀 อัปเดต: ฟังก์ชันใช้ API คลาสล่าง (Low-level Html5Qrcode) บังคับล็อกกล้องหลังแบบแอพกระเป๋าตังค์
         function openQRScanner(baseId, baseName) {
             currentBaseId = baseId;
             document.getElementById('scanner-target-name').innerText = `โปรดสแกน QR Code ประจำ: ${baseName}`;
             document.getElementById('scanner-modal').classList.remove('hidden');
             
-            html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
-                fps: 24, 
-                qrbox: { width: 250, height: 250 },
-                aspectRatio: 1.0
-            });
+            // สร้างอินสแตนซ์ของคลาสตัวล่างสุดตรงเข้า Element Id รีโมท
+            if (!html5QrcodeInstance) {
+                html5QrcodeInstance = new Html5Qrcode("reader");
+            }
             
-            html5QrcodeScanner.render((decodedText) => {
-                html5QrcodeScanner.clear();
-                document.getElementById('scanner-modal').classList.add('hidden');
-                verifyQRCode(decodedText);
-            }, (error) => {
-                // ดักจับเคสกรณีเครื่องผู้ใช้งานบล็อกกล้องที่ตัวระบบ OS ของมือถือ
-                if(error && error.includes("Permission denied")) {
-                    html5QrcodeScanner.clear();
-                    document.getElementById('scanner-modal').classList.add('hidden');
-                    playSound('sound-wrong');
-                    Swal.fire('สแกนล้มเหลว', 'เบราว์เซอร์ของคุณถูกปฏิเสธการเข้าถึงกล้องถ่ายรูปภายนอก โปรดตั้งค่าเปิดสิทธิ์ในตั้งค่ามือถือของคุณก่อนครับ', 'error');
+            // สั่งสตาร์ทสตรีมมิ่งวิดีโอโดยเจาะจงล็อกให้เปิดเฉพาะกล้องหลัง (facingMode: "environment")
+            html5QrcodeInstance.start(
+                { facingMode: "environment" }, 
+                {
+                    fps: 24,
+                    qrbox: { width: 250, height: 250 }
+                },
+                (decodedText) => {
+                    // เมื่อสแกนติดคิวอาร์โค้ดสำเร็จ ให้ปิดสตรีมวิดีโอเพื่อคืนทรัพยากรกล้องให้ OS ทันที
+                    html5QrcodeInstance.stop().then(() => {
+                        document.getElementById('scanner-modal').classList.add('hidden');
+                        verifyQRCode(decodedText);
+                    }).catch(err => console.log("Stop error:", err));
+                },
+                (errorMessage) => {
+                    // ปล่อยข้าม Log ย่อย ๆ ระหว่างกล้องทำการค้นหาเฟรมคิวอาร์โค้ด
                 }
+            ).catch(error => {
+                // เด้งแจ้งเตือนกรณีที่ระบบปฏิบัติการมือถือปฏิเสธการขอฮาร์ดแวร์จริง
+                document.getElementById('scanner-modal').classList.add('hidden');
+                playSound('sound-wrong');
+                Swal.fire('กล้องขัดข้อง', 'ไม่สามารถเปิดสตรีมวิดีโอกล้องหลังได้ โปรดใช้เบราว์เซอร์มาตรฐานอย่าง Chrome หรือ Safari และตรวจสอบสิทธิ์การแชร์กล้องในมือถืออีกครั้งครับ', 'error');
+                console.error("Camera start error:", error);
             });
         }
 
+        // ฟังก์ชันสั่งกดยกเลิกปิดหน้าจอ และตัดระบบไฟฟ้าสตรีมมิ่งกล้องอย่างปลอดภัย
         function closeQRScanner() {
-            if (html5QrcodeScanner) html5QrcodeScanner.clear();
-            document.getElementById('scanner-modal').classList.add('hidden');
+            if (html5QrcodeInstance && html5QrcodeInstance.isScanning) {
+                html5QrcodeInstance.stop().then(() => {
+                    document.getElementById('scanner-modal').classList.add('hidden');
+                }).catch(err => console.log(err));
+            } else {
+                document.getElementById('scanner-modal').classList.add('hidden');
+            }
         }
 
         async function verifyQRCode(qrText) {
@@ -450,7 +462,6 @@
             }
         }
 
-        // 10. แสดงหน้าบทความคลังความรู้พร้อมระบบบังคับเวลาอ่านแบบหน่วงปุ่ม
         function showContentPage(content) {
             document.getElementById('page-main').classList.add('hidden');
             document.getElementById('page-content').classList.remove('hidden');
@@ -477,7 +488,6 @@
             }, 1000);
         }
 
-        // 11. ดึงข้อสอบแบบสุ่มรายข้อจาก Google Sheet เข้าสู่เกม
         async function startQuizSession() {
             if (!currentBaseId) return;
             playSound('sound-success');
@@ -546,7 +556,6 @@
             }
         }
 
-        // 12. ส่งผลคะแนนประมวลผลกลับเข้าหลังบ้านเพื่ออัปเดตสเตตัสพาสภารกิจ
         async function finishQuizSession() {
             if (!currentUser || !currentBaseId) return;
             Swal.showLoading();
@@ -581,7 +590,6 @@
             loadDashboard();
         }
 
-        // 13. โหลดและเรียงลำดับลีดเดอร์บอร์ดผู้ทำเวลาเร็วสุด
         async function loadLeaderboard() {
             const data = await callAPI({ action: 'getLeaderboard' });
             const container = document.getElementById('leaderboard-list');
@@ -612,7 +620,6 @@
             });
         }
 
-        // 14. นับถอยหลังเวลาปิดรับคำตอบในการทำกิจกรรมภารกิจ
         function startMissionTimer(endTimeStr) {
             const targetTime = new Date(endTimeStr).getTime();
             const displayElement = document.getElementById('countdown-timer');
@@ -622,7 +629,7 @@
                 const difference = targetTime - now;
                 
                 if (difference <= 0) {
-                    clearInterval(difference);
+                    clearInterval(timerInterval);
                     displayElement.innerText = "หมดเวลาภารกิจ";
                     playSound('sound-timer');
                     Swal.fire('หมดเวลาทำภารกิจ!', 'ระบบปิดรับคำตอบเรียบร้อยแล้ว', 'error').then(() => {
@@ -640,7 +647,6 @@
             }, 1000);
         }
 
-        // 15. ควบคุมการสลับแท็บ หน้าแผนที่ฐาน / ทำเนียบอันดับความเร็ว
         function handleTabSwitch(tab) {
             playSound('sound-click');
             const contentMap = document.getElementById('content-map');
@@ -661,7 +667,6 @@
             }
         }
 
-        // 16. การผูกมัด Event Handler เมื่อเบราว์เซอร์เตรียมโครงสร้าง DOM เรียบร้อยแล้ว
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('btn-mode-login').addEventListener('click', () => toggleAuthMode('login'));
             document.getElementById('btn-mode-register').addEventListener('click', () => toggleAuthMode('register'));
