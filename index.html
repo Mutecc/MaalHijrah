@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maal Hijrah กิจกรรมผจญภัยตามล่าฐาน</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Google Font Sarabun -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- QR Scanner Library -->
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
@@ -25,7 +30,7 @@
         .scanner-laser {
             animation: laserMove 2.5s infinite linear;
         }
-        /* ล้างสไตล์ของวิดีโอที่ได้จาก Html5Qrcode ให้เต็มกรอบพอดี */
+        /* ปรับวิดีโอ QR กล้องให้เต็มกรอบพอดี */
         #reader video {
             width: 100% !important;
             height: 100% !important;
@@ -35,11 +40,13 @@
 </head>
 <body class="bg-gray-50 min-h-screen text-gray-800">
 
+    <!-- เสียงเอฟเฟกต์ประกอบเกม -->
     <audio id="sound-click" src="https://actions.google.com/sounds/v1/interfaces/simple_click.ogg" preload="auto"></audio>
     <audio id="sound-success" src="https://actions.google.com/sounds/v1/cartoon/cartoon_cowbell.ogg" preload="auto"></audio>
     <audio id="sound-wrong" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto"></audio>
     <audio id="sound-timer" src="https://actions.google.com/sounds/v1/alarms/beeping_timer.ogg" preload="auto"></audio>
 
+    <!-- ================= 1. AUTH CONTAINER (LOGIN / REGISTER) ================= -->
     <div id="page-auth" class="bg-islamic min-h-screen flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-t-8 border-yellow-500">
             <div class="text-center mb-6">
@@ -48,17 +55,19 @@
                 <p class="text-xs text-gray-400 mt-1">ระบบกิจกรรมผจญภัยค้นหาและทดสอบความรู้</p>
             </div>
 
+            <!-- เมนูสลับหน้า Login / Register -->
             <div class="flex bg-gray-100 p-1 rounded-xl mb-6">
                 <button id="btn-mode-login" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-teal-700 shadow-sm transition">เข้าสู่ระบบ</button>
                 <button id="btn-mode-register" class="flex-1 py-2 text-sm font-semibold text-gray-500 transition">ลงทะเบียนใหม่</button>
             </div>
 
+            <!-- FORM: LOGIN -->
             <div id="form-login" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">รหัสนักเรียน</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-3 top-3.5 text-gray-400 text-sm"></i>
-                        <input type="text" id="login-id" class="w-full pl-10 pr-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-teal-500 text-sm outline-none" placeholder="STDXXXX">
+                        <input type="text" id="login-id" class="w-full pl-10 pr-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-teal-500 text-sm outline-none" placeholder="รหัสนักเรียน">
                     </div>
                 </div>
                 <div>
@@ -73,6 +82,7 @@
                 </button>
             </div>
 
+            <!-- FORM: REGISTER -->
             <div id="form-register" class="hidden space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">รหัสนักเรียน</label>
@@ -105,7 +115,7 @@
                     <label class="block text-xs font-semibold text-gray-600 mb-1">กำหนดรหัสผ่านเข้าใช้งาน</label>
                     <div class="relative">
                         <i class="fa-solid fa-key absolute left-3 top-3.5 text-gray-400 text-sm"></i>
-                        <input type="password" id="reg-pw" class="w-full pl-10 pr-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-teal-500 text-sm outline-none" placeholder="ตั้งรหัสผ่านสำหรับลงชื่อเข้าใช้">
+                        <input type="password" id="reg-pw" class="w-full pl-10 pr-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-teal-500 text-sm outline-none" placeholder="ตั้งรหัสผ่าน">
                     </div>
                 </div>
                 <button id="btn-submit-register" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl transition duration-200 shadow-md text-sm">
@@ -115,6 +125,7 @@
         </div>
     </div>
 
+    <!-- ================= 2. MAIN DASHBOARD & MAP ================= -->
     <div id="page-main" class="hidden min-h-screen pb-20">
         <div class="bg-islamic text-white p-4 sticky top-0 z-40 shadow-md flex justify-between items-center">
             <div>
@@ -140,7 +151,7 @@
         <div id="content-map" class="p-4 max-w-md mx-auto space-y-4">
             <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 flex items-start space-x-2">
                 <i class="fa-solid fa-circle-info text-base mt-0.5"></i>
-                <span>กติกา: กดดูคำใบ้ประจำฐานเพื่อออกเดินทางตามหา QR Code เมื่อเจอแล้ว ให้กดสแกนให้ถูกฐานเพื่อเข้าศึกษาและทำบททดสอบ!</span>
+                <span>กติกา: ออกเดินทางตามหา QR Code ประจำฐานเพื่อสแกนอ่านเนื้อหาความรู้ และทำแบบทดสอบให้ผ่านเกณฑ์ (3 ใน 5 ข้อขึ้นไป) เพื่อผ่านด่าน!</span>
             </div>
             <div id="base-list" class="space-y-3"></div>
         </div>
@@ -153,13 +164,14 @@
         </div>
     </div>
 
+    <!-- ================= 3. CONTENT READ PAGE ================= -->
     <div id="page-content" class="hidden min-h-screen bg-gray-100 p-4">
         <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden mt-6">
-            <div class="bg-teal-700 text-white p-4 font-bold text-center text-lg" id="content-base-title">คลังความรู้</div>
+            <div class="bg-teal-700 text-white p-4 font-bold text-center text-lg" id="content-base-title">คลังความรู้ประจำฐาน</div>
             <div class="p-6">
                 <div id="base-text-content" class="prose text-gray-700 leading-relaxed min-h-[250px] mb-6 bg-gray-50 p-4 rounded-xl border"></div>
                 <div class="text-center">
-                    <p class="text-xs text-red-500 mb-2 font-semibold"><i class="fa-solid fa-triangle-exclamation"></i> กรุณาอ่านทำความเข้าใจเพื่อทำควิซ (บังคับอ่าน 60 วินาที)</p>
+                    <p class="text-xs text-red-500 mb-2 font-semibold"><i class="fa-solid fa-triangle-exclamation"></i> กรุณาอ่านศึกษาเนื้อหาอย่างละเอียด (ระบบบังคับอ่าน 60 วินาทีก่อนกดทำควิซ)</p>
                     <button id="btn-start-quiz" disabled class="w-full bg-gray-400 text-white font-bold py-3 rounded-xl cursor-not-allowed transition shadow">
                         โปรดอ่านเนื้อหา (<span id="read-timer">60</span> วินาที)
                     </button>
@@ -168,6 +180,7 @@
         </div>
     </div>
 
+    <!-- ================= 4. QUIZ SESSION PAGE ================= -->
     <div id="page-quiz" class="hidden min-h-screen bg-teal-50 p-4">
         <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-6 mt-6">
             <div class="flex justify-between items-center mb-4">
@@ -175,7 +188,7 @@
                 <span class="text-xs font-bold text-red-500"><i class="fa-solid fa-heart animate-ping"></i> กำลังทดสอบ</span>
             </div>
             <div id="quiz-container">
-                <h3 class="font-bold text-lg text-gray-800 mb-4" id="quiz-question">คำถามกำลังโหลด...</h3>
+                <h3 class="font-bold text-lg text-gray-800 mb-4" id="quiz-question">กำลังโหลดคำถาม...</h3>
                 <div class="space-y-3" id="quiz-options"></div>
             </div>
             <button id="btn-next-quiz" class="w-full mt-6 bg-teal-600 text-white font-bold py-3 rounded-xl hidden shadow">
@@ -184,9 +197,10 @@
         </div>
     </div>
 
+    <!-- ================= 5. MODERN SCANNER MODAL ================= -->
     <div id="scanner-modal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex flex-col items-center justify-between p-6">
         <div class="text-center w-full pt-4">
-            <h3 class="font-bold text-lg text-white tracking-wide"><i class="fa-solid fa-line-columns text-teal-400 mr-2"></i>ศูนย์สแกนตรวจสอบภารกิจ</h3>
+            <h3 class="font-bold text-lg text-white tracking-wide"><i class="fa-solid fa-expand text-teal-400 mr-2"></i>เครื่องสแกนภารกิจ</h3>
             <p class="text-xs text-gray-400 mt-1" id="scanner-target-name">กำลังตรวจสอบเป้าหมายฐาน...</p>
         </div>
 
@@ -202,15 +216,17 @@
 
         <div class="w-full text-center pb-6">
             <p class="text-xs text-teal-300/80 mb-6 bg-teal-950/40 py-2 px-4 rounded-full max-w-xs mx-auto border border-teal-900/40">
-                <i class="fa-solid fa-expand mr-1.5 animate-pulse"></i> จัดวางคิวอาร์โค้ดให้อยู่ในกรอบเล็งเป้า
+                <i class="fa-solid fa-expand mr-1.5 animate-pulse"></i> หันกล้องไปที่คิวอาร์โค้ดประจำฐานให้ตรงกรอบเล็ง
             </p>
-            <button id="btn-close-scanner" class="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-2xl text-sm transition duration-200 border border-white/10 backdrop-blur-md active:scale-95">
-                <i class="fa-solid fa-xmark mr-2"></i> ปิดหน้าจ้องกล้อง
+            <button id="btn-close-scanner" class="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-2xl text-sm transition duration-200 border border-white/10 backdrop-blur-md">
+                <i class="fa-solid fa-xmark mr-2"></i> ปิดหน้ากล้อง
             </button>
         </div>
     </div>
 
+    <!-- ================= APPLICATION LOGIC (JAVASCRIPT) ================= -->
     <script>
+        // ⚠️ อย่าลืมนำ URL เว็บแอปที่ Deploy จาก Apps Script มาวางแทนที่ตรงนี้นะครับ
         const API_URL = "https://script.google.com/macros/s/AKfycbxSW9WQKBNlFs2ObuSL_Gc3o3ON9fk_DTl69oXemwI1q70eX_bapv9bBvHeuK6DZcYs/exec"; 
 
         let currentUser = null;
@@ -228,7 +244,7 @@
             const audio = document.getElementById(audioId);
             if (audio) {
                 audio.currentTime = 0;
-                audio.play().catch(e => console.log('Audio error:', e));
+                audio.play().catch(e => console.log('Audio playback prevented:', e));
             }
         }
 
@@ -269,7 +285,7 @@
 
             if (!student_id || !name || !password) {
                 playSound('sound-wrong');
-                return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลในการลงทะเบียนให้ครบทุกช่อง', 'warning');
+                return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลลงทะเบียนให้ครบถ้วน', 'warning');
             }
 
             Swal.showLoading();
@@ -281,7 +297,7 @@
                     icon: 'success',
                     title: 'ลงทะเบียนสำเร็จ!',
                     text: data.message,
-                    confirmButtonText: 'ไปหน้าเข้าสู่ระบบ'
+                    confirmButtonText: 'ไปหน้าล็อกอิน'
                 }).then(() => {
                     document.getElementById('reg-id').value = '';
                     document.getElementById('reg-name').value = '';
@@ -290,7 +306,7 @@
                 });
             } else {
                 playSound('sound-wrong');
-                Swal.fire('เกิดข้อผิดพลาด', data.message, 'error');
+                Swal.fire('ข้อผิดพลาด', data.message, 'error');
             }
         }
 
@@ -299,7 +315,7 @@
             const student_id = document.getElementById('login-id').value.trim();
             const password = document.getElementById('login-pw').value.trim();
             
-            if (!student_id || !password) return Swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสนักเรียนและรหัสผ่าน', 'warning');
+            if (!student_id || !password) return Swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสและรหัสผ่านให้ครบ', 'warning');
 
             Swal.showLoading();
             const data = await callAPI({ action: 'login', student_id, password });
@@ -320,8 +336,8 @@
         function handleLogout() {
             playSound('sound-click');
             Swal.fire({
-                title: 'ออกจากระบบ?',
-                text: "คุณต้องการออกจากบัญชีผู้ใช้งานนี้ใช่หรือไม่?",
+                title: 'ยืนยันออกจากระบบ?',
+                text: "คุณต้องการล็อกเอาต์ออกจากบัญชีผู้ใช้นี้ใช่หรือไม่?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -380,7 +396,7 @@
                     btnAction = `<button disabled class="bg-gray-200 text-gray-400 px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed border"><i class="fa-solid fa-ban mr-1"></i> ยังไม่เริ่ม</button>`;
                 } 
                 else if (missionTimeStatus === 'ENDED') {
-                    statusBadge = `<span class="bg-red-50 text-red-600 text-xs px-2.5 py-1 rounded-full font-semibold"><i class="fa-solid fa-hourglass-end"></i> สิ้นสุดเวลาทำกิจกรรม</span>`;
+                    statusBadge = `<span class="bg-red-50 text-red-600 text-xs px-2.5 py-1 rounded-full font-semibold"><i class="fa-solid fa-hourglass-end"></i> หมดเวลากิจกรรม</span>`;
                     btnAction = `<button disabled class="bg-gray-200 text-gray-400 px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed border"><i class="fa-solid fa-calendar-xmark mr-1"></i> หมดเวลา</button>`;
                 } 
                 else {
@@ -412,19 +428,14 @@
             playSound('sound-click');
             
             Swal.fire({
-                title: 'ขออนุมัติเข้าถึงกล้อง',
-                text: `ระบบต้องการเปิดใช้งานกล้องถ่ายรูปของมือถือคุณ เพื่อทำการสแกนตรวจสอบข้อมูล "${baseName}"`,
+                title: 'การเข้าถึงกล้อง',
+                text: `ระบบต้องการใช้งานกล้องถ่ายรูปเพื่อสแกน QR Code ประจำฐาน "${baseName}"`,
                 icon: 'info',
                 showCancelButton: true,
                 confirmButtonColor: '#0f766e', 
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: '<i class="fa-solid fa-camera mr-1"></i> อนุญาตและเปิดกล้อง',
-                cancelButtonText: 'ยกเลิก',
-                customClass: {
-                    popup: 'rounded-2xl',
-                    confirmButton: 'rounded-xl font-bold px-4 py-2.5',
-                    cancelButton: 'rounded-xl font-medium px-4 py-2.5'
-                }
+                confirmButtonText: '<i class="fa-solid fa-camera mr-1"></i> เปิดกล้องสแกน',
+                cancelButtonText: 'ยกเลิก'
             }).then((result) => {
                 if (result.isConfirmed) {
                     openQRScanner(baseId, baseName);
@@ -434,7 +445,7 @@
 
         function openQRScanner(baseId, baseName) {
             currentBaseId = baseId;
-            document.getElementById('scanner-target-name').innerText = `โปรดสแกน QR Code ประจำ: ${baseName}`;
+            document.getElementById('scanner-target-name').innerText = `เป้าหมาย: ${baseName}`;
             document.getElementById('scanner-modal').classList.remove('hidden');
             
             if (!html5QrcodeInstance) {
@@ -451,13 +462,13 @@
                     html5QrcodeInstance.stop().then(() => {
                         document.getElementById('scanner-modal').classList.add('hidden');
                         verifyQRCode(decodedText);
-                    }).catch(err => console.log("Stop error:", err));
+                    }).catch(err => console.log("Stop scan error:", err));
                 },
                 (errorMessage) => {}
             ).catch(error => {
                 document.getElementById('scanner-modal').classList.add('hidden');
                 playSound('sound-wrong');
-                Swal.fire('กล้องขัดข้อง', 'ไม่สามารถเปิดสตรีมวิดีโอกล้องหลังได้ โปรดใช้เบราว์เซอร์มาตรฐานอย่าง Chrome หรือ Safari', 'error');
+                Swal.fire('กล้องขัดข้อง', 'ไม่สามารถเข้าถึงกล้องหลังได้ โปรดเปิดผ่าน Chrome หรือ Safari เวอร์ชันล่าสุด', 'error');
             });
         }
 
@@ -482,7 +493,7 @@
                 showContentPage(data.content);
             } else {
                 playSound('sound-wrong');
-                Swal.fire({ icon: 'error', title: 'ผิดฐาน!', text: data.message });
+                Swal.fire({ icon: 'error', title: 'ผิดพลาด!', text: data.message });
             }
         }
 
@@ -580,7 +591,7 @@
             }
         }
 
-        // 🌟 ฟังก์ชันที่ปรับปรุงใหม่: ล็อกปุ่มสีเทา "เสร็จสิ้น" และสั่งโหลดบอร์ดทันทีเมื่อเงื่อนไขผ่านเกณฑ์สดๆ หน้าบ้าน
+        // 🌟 บังคับเปลี่ยนสถานะปุ่มล็อกทันทีบน Local State และอัปเดตบอร์ดแบบเรียลไทม์
         async function finishQuizSession() {
             if (!currentUser || !currentBaseId) return;
             Swal.showLoading();
@@ -597,11 +608,10 @@
                 document.getElementById('page-quiz').classList.add('hidden');
                 document.getElementById('page-main').classList.remove('hidden');
                 
-                // ตรวจสอบสดหน้าบ้านว่าตอบถูก 3 ข้อขึ้นไป หรือเช็คสถานะการตอบกลับ
                 if (scoreCounter >= 3 || (data && data.resultStatus === 'PASSED')) {
                     playSound('sound-success');
                     
-                    // 🔒 [PATCH CODE] สั่งอัปเดตเปลี่ยนสถานะเป็นผ่านในหน่วยความจำเครื่องทันที
+                    // 🔒 บังคับบันทึกค่าล็อกปุ่มหน้าบ้านทันที
                     if (globalBasesData && globalBasesData.length > 0) {
                         let targetBase = globalBasesData.find(b => b.id === currentBaseId);
                         if (targetBase) {
@@ -611,31 +621,31 @@
                     
                     Swal.fire({
                         icon: 'success',
-                        title: 'ยินดีด้วย คุณผ่านฐานนี้!',
-                        text: `คุณตอบถูกทั้งหมด ${scoreCounter}/5 ข้อ ผ่านเกณฑ์เรียบร้อย`,
-                        confirmButtonText: 'ลุยฐานต่อไป'
+                        title: 'ยินดีด้วย คุณผ่านเกณฑ์!',
+                        text: `คุณได้คะแนน ${scoreCounter}/5 ข้อ ผ่านเกณฑ์เรียบร้อย`,
+                        confirmButtonText: 'ทำภารกิจต่อไป'
                     });
                 } else {
                     playSound('sound-wrong');
                     Swal.fire({
                         icon: 'error',
-                        title: 'คุณไม่ผ่านเกณฑ์!',
-                        text: `คุณได้คะแนน ${scoreCounter}/5 ข้อ (ต้องผ่าน 3 ข้อขึ้นไป) โปรดลองสแกนใหม่อีกครั้ง`,
+                        title: 'ยังไม่ผ่านเกณฑ์!',
+                        text: `คุณได้คะแนน ${scoreCounter}/5 ข้อ (ต้องได้ 3 ข้อขึ้นไป) โปรดลองศึกษาและสแกนทำใหม่อีกครั้ง`,
                         confirmButtonText: 'รับทราบ'
                     });
                 }
                 
-                // 🔄 สั่งวาดปุ่มใหม่ให้กลายเป็น "สีเทา (เสร็จสิ้น)" และล็อกทันตาเห็น
+                // 🔄 Re-render วาดรายการปุ่มใหม่ (ด่านที่ผ่านจะกลายเป็นสีเทาและถูกล็อกทันที)
                 renderBaseListUI(); 
                 
-                // 📊 กระตุ้นการดึงคะแนนบอร์ดใหม่เพื่อขยับอันดับแบบเรียลไทม์
+                // 📊 รีโหลดกระตุ้นทำเนียบอันดับคะแนนใหม่
                 loadLeaderboard();
                 
             } catch (error) {
                 Swal.close();
-                console.error("Submit quiz error:", error);
+                console.error("Submit quiz network error:", error);
                 
-                // กรณีอินเทอร์เน็ตขัดข้องกลางคันแต่เด็กทำผ่านเกณฑ์ ให้สั่งล็อกปุ่มไว้ก่อนเพื่อสิทธิ์ของเด็ก
+                // แผนสำรอง: กรณีเน็ตหลุดแต่เด็กทำผ่านเกณฑ์ บังคับสั่งเซตล็อกปุ่มไว้ก่อนเพื่อสิทธิ์ของเด็ก
                 if (scoreCounter >= 3) {
                     if (globalBasesData) {
                         let targetBase = globalBasesData.find(b => b.id === currentBaseId);
@@ -655,7 +665,7 @@
             container.innerHTML = '';
 
             if (!data.leaderboard || data.leaderboard.length === 0) {
-                container.innerHTML = `<p class="text-center py-6 text-xs text-gray-400">ยังไม่มีผู้พิชิตผ่านฐานใด ๆ ในขณะนี้</p>`;
+                container.innerHTML = `<p class="text-center py-6 text-xs text-gray-400">ยังไม่มีประวัติผู้ผ่านเกณฑ์ในขณะนี้</p>`;
                 return;
             }
 
@@ -679,6 +689,7 @@
             });
         }
 
+        // 🇹🇭 เวอร์ชันรองรับข้อความเวลาประเทศไทยมาตรฐาน (Format ค.ศ. เท่านั้น)
         function startMissionTimer(startTimeStr, endTimeStr) {
             const displayElement = document.getElementById('countdown-timer');
             const badge = document.getElementById('timer-badge');
@@ -689,12 +700,19 @@
                 return;
             }
 
-            const targetStart = startTimeStr ? new Date(startTimeStr).getTime() : 0;
-            const targetEnd = new Date(endTimeStr).getTime();
+            // ฟังก์ชันจัดการสตริงวันที่ให้รองรับทุกเบราว์เซอร์ (รวม iOS Safari)
+            function parseThaiDate(dateStr) {
+                let safeStr = dateStr.replace(/\//g, "-");
+                return new Date(safeStr).getTime();
+            }
+
+            const targetStart = startTimeStr ? parseThaiDate(startTimeStr) : 0;
+            const targetEnd = parseThaiDate(endTimeStr);
             
             let timerInterval = setInterval(() => {
                 const now = new Date().getTime();
                 
+                // กรณีกิจกรรมยังไม่เริ่มต้น
                 if (targetStart > 0 && now < targetStart) {
                     missionTimeStatus = 'WAITING';
                     badge.className = "bg-blue-500/20 px-3 py-1.5 rounded-full border border-blue-400 flex items-center space-x-2";
@@ -709,6 +727,7 @@
                 
                 const difference = targetEnd - now;
                 
+                // กรณีหมดเวลาภารกิจ
                 if (difference <= 0) {
                     clearInterval(timerInterval);
                     missionTimeStatus = 'ENDED';
@@ -717,7 +736,7 @@
                     renderBaseListUI(); 
                     
                     playSound('sound-timer');
-                    Swal.fire('หมดเวลาทำภารกิจ!', 'ระบบกิจกรรมส่วนกลางได้ทำการปิดรับการตรวจคิวอาร์โค้ดเรียบร้อยแล้ว', 'error');
+                    Swal.fire('หมดเวลาแล้ว!', 'ระบบส่วนกลางปิดรับการส่งบันทึกคะแนนกิจกรรมเรียบร้อยแล้ว', 'error');
                     return;
                 }
                 
