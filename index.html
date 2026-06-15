@@ -4,17 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maal Hijrah กิจกรรมผจญภัยตามล่าฐาน</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Google Font Sarabun -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- QR Scanner Library -->
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
@@ -40,13 +35,11 @@
 </head>
 <body class="bg-gray-50 min-h-screen text-gray-800">
 
-    <!-- เสียงเอฟเฟกต์ประกอบเกม -->
     <audio id="sound-click" src="https://actions.google.com/sounds/v1/interfaces/simple_click.ogg" preload="auto"></audio>
     <audio id="sound-success" src="https://actions.google.com/sounds/v1/cartoon/cartoon_cowbell.ogg" preload="auto"></audio>
     <audio id="sound-wrong" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto"></audio>
     <audio id="sound-timer" src="https://actions.google.com/sounds/v1/alarms/beeping_timer.ogg" preload="auto"></audio>
 
-    <!-- ================= AUTH CONTAINER (LOGIN / REGISTER) ================= -->
     <div id="page-auth" class="bg-islamic min-h-screen flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-t-8 border-yellow-500">
             <div class="text-center mb-6">
@@ -55,13 +48,11 @@
                 <p class="text-xs text-gray-400 mt-1">ระบบกิจกรรมผจญภัยค้นหาและทดสอบความรู้</p>
             </div>
 
-            <!-- เมนูสลับหน้า Login / Register -->
             <div class="flex bg-gray-100 p-1 rounded-xl mb-6">
                 <button id="btn-mode-login" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-teal-700 shadow-sm transition">เข้าสู่ระบบ</button>
                 <button id="btn-mode-register" class="flex-1 py-2 text-sm font-semibold text-gray-500 transition">ลงทะเบียนใหม่</button>
             </div>
 
-            <!-- FORM: LOGIN -->
             <div id="form-login" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">รหัสนักเรียน</label>
@@ -82,7 +73,6 @@
                 </button>
             </div>
 
-            <!-- FORM: REGISTER -->
             <div id="form-register" class="hidden space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">รหัสนักเรียน</label>
@@ -125,22 +115,26 @@
         </div>
     </div>
 
-    <!-- ================= 2. MAIN DASHBOARD & MAP ================= -->
     <div id="page-main" class="hidden min-h-screen pb-20">
         <div class="bg-islamic text-white p-4 sticky top-0 z-40 shadow-md flex justify-between items-center">
             <div>
                 <span class="text-xs text-teal-200 block" id="user-level">กำลังโหลด..</span>
-                <h2 class="font-bold text-lg" id="user-name">กำลังโหลด...</h2>
+                <h2 class="font-bold text-lg inline-block" id="user-name">กำลังโหลด...</h2>
             </div>
-            <div class="bg-red-500/20 px-3 py-1.5 rounded-full border border-red-400 flex items-center space-x-2">
-                <i class="fa-solid fa-clock animate-pulse text-red-400"></i>
-                <span class="font-bold tracking-wider text-sm" id="countdown-timer">00:00:00</span>
+            <div class="flex items-center space-x-3">
+                <div id="timer-badge" class="bg-red-500/20 px-3 py-1.5 rounded-full border border-red-400 flex items-center space-x-2">
+                    <i class="fa-solid fa-clock animate-pulse text-red-400"></i>
+                    <span class="font-bold tracking-wider text-sm" id="countdown-timer">00:00:00</span>
+                </div>
+                <button id="btn-logout" class="bg-white/10 hover:bg-red-500 hover:text-white text-teal-100 p-2.5 rounded-xl transition border border-white/10 text-sm" title="ออกจากระบบ">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
             </div>
         </div>
 
         <div class="flex bg-white shadow-sm border-b">
             <button id="tab-map" class="flex-1 py-3 text-center border-b-2 border-teal-600 font-bold text-teal-600"><i class="fa-solid fa-map-location-dot mr-2"></i>แผนที่ฐาน</button>
-            <button id="tab-rank" class="flex-1 py-3 text-center border-b-2 border-transparent text-gray-500 font-semibold"><i class="fa-solid fa-trophy mr-2"></i>10 อันดับแรก</button>
+            <button id="tab-rank" class="flex-1 py-3 text-center border-b-2 border-transparent text-gray-500 font-semibold"><i class="fa-solid fa-trophy mr-2"></i>อันดับกิจกรรม</button>
         </div>
 
         <div id="content-map" class="p-4 max-w-md mx-auto space-y-4">
@@ -153,13 +147,12 @@
 
         <div id="content-rank" class="hidden p-4 max-w-md mx-auto">
             <div class="bg-white rounded-2xl shadow-md p-4">
-                <h3 class="text-center font-bold text-lg text-teal-800 mb-4"><i class="fa-solid fa-crown text-yellow-500 mr-2"></i>Hall of Fame (Top 10)</h3>
+                <h3 class="text-center font-bold text-lg text-teal-800 mb-4"><i class="fa-solid fa-crown text-yellow-500 mr-2"></i>ทำเนียบผู้พิชิตกิจกรรม</h3>
                 <div class="divide-y" id="leaderboard-list"></div>
             </div>
         </div>
     </div>
 
-    <!-- ================= 3. CONTENT READ PAGE ================= -->
     <div id="page-content" class="hidden min-h-screen bg-gray-100 p-4">
         <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden mt-6">
             <div class="bg-teal-700 text-white p-4 font-bold text-center text-lg" id="content-base-title">คลังความรู้</div>
@@ -175,7 +168,6 @@
         </div>
     </div>
 
-    <!-- ================= 4. QUIZ SESSION PAGE ================= -->
     <div id="page-quiz" class="hidden min-h-screen bg-teal-50 p-4">
         <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-6 mt-6">
             <div class="flex justify-between items-center mb-4">
@@ -192,14 +184,12 @@
         </div>
     </div>
 
-    <!-- ================= 5. MODERN SCANNER MODAL ================= -->
     <div id="scanner-modal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex flex-col items-center justify-between p-6">
         <div class="text-center w-full pt-4">
             <h3 class="font-bold text-lg text-white tracking-wide"><i class="fa-solid fa-line-columns text-teal-400 mr-2"></i>ศูนย์สแกนตรวจสอบภารกิจ</h3>
             <p class="text-xs text-gray-400 mt-1" id="scanner-target-name">กำลังตรวจสอบเป้าหมายฐาน...</p>
         </div>
 
-        <!-- หน้าจอส่องกล้องครอบ HUD ดีไซน์ไซไฟ -->
         <div class="relative w-72 h-72 md:w-80 md:h-80 mx-auto my-auto flex items-center justify-center bg-black rounded-xl overflow-hidden">
             <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-teal-400 rounded-tl-lg z-20"></div>
             <div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-teal-400 rounded-tr-lg z-20"></div>
@@ -207,7 +197,6 @@
             <div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-teal-400 rounded-br-lg z-20"></div>
             <div class="scanner-laser absolute left-2 right-2 h-1 bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_12px_rgba(45,212,191,0.8)] z-20 rounded-full"></div>
             
-            <!-- ดึงวิดีโอสดผ่านแท็ก Reader โดยใช้ API ระดับล่างเพื่อความเสถียรสูงสุด -->
             <div id="reader" class="w-full h-full"></div>
         </div>
 
@@ -216,12 +205,11 @@
                 <i class="fa-solid fa-expand mr-1.5 animate-pulse"></i> จัดวางคิวอาร์โค้ดให้อยู่ในกรอบเล็งเป้า
             </p>
             <button id="btn-close-scanner" class="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-2xl text-sm transition duration-200 border border-white/10 backdrop-blur-md active:scale-95">
-                <i class="fa-solid fa-xmark mr-2"></i> ปิดหน้าจอกล้อง
+                <i class="fa-solid fa-xmark mr-2"></i> ปิดหน้าจ้องกล้อง
             </button>
         </div>
     </div>
 
-    <!-- ================= APPLICATION LOGIC (JAVASCRIPT) ================= -->
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxSW9WQKBNlFs2ObuSL_Gc3o3ON9fk_DTl69oXemwI1q70eX_bapv9bBvHeuK6DZcYs/exec"; 
 
@@ -231,9 +219,11 @@
         let currentQuizIndex = 0;
         let scoreCounter = 0;
         let selectedAnswer = null;
-        
-        // ตัวแปรเก็บอ็อบเจกต์กล้องแบบ API กระเป๋าตังค์ ตัวท็อปความเสถียร
         let html5QrcodeInstance = null;
+        
+        // ตัวแปรเก็บสถานะเวลาส่วนกลางของกิจกรรม
+        let missionTimeStatus = 'WAITING'; // WAITING = ยังไม่เริ่ม, STARTED = กำลังแข่ง, ENDED = หมดเวลา
+        let globalBasesData = []; // เก็บสำเนาข้อมูลด่านล่าสุดไว้ประมวลผล Realtime บนหน้าบ้าน
 
         function playSound(audioId) {
             const audio = document.getElementById(audioId);
@@ -316,15 +306,12 @@
             const data = await callAPI({ action: 'login', student_id, password });
             
             if (data.status === 'success') {
-                currentUser = data.student;
-                document.getElementById('user-name').innerText = currentUser.name;
-                document.getElementById('user-level').innerText = currentUser.level;
-                
-                document.getElementById('page-auth').classList.add('hidden');
-                document.getElementById('page-main').classList.remove('hidden');
-                
-                startMissionTimer(data.mission_end);
-                loadDashboard();
+                // บันทึกข้อมูลลงเครื่องผู้ใช้ (LocalStorage) เพื่อรีเฟรชหน้าจอแล้วล็อกอินไม่หลุด
+                localStorage.setItem('mutec_user', JSON.stringify(data.student));
+                localStorage.setItem('mutec_mission_end', data.mission_end);
+                localStorage.setItem('mutec_mission_start', data.mission_start || ""); // เพิ่มกรณีเผื่อต้องการเก็บเวลาเริ่มด้วย
+
+                executeLoginSuccess(data.student, data.mission_start, data.mission_end);
                 Swal.close();
             } else {
                 playSound('sound-wrong');
@@ -332,49 +319,105 @@
             }
         }
 
+        // ฟังก์ชันศูนย์กลางจัดการเคลียร์ค่ากลับสู่หน้าแรกเมื่อกดยกเลิกสิทธิ์
+        function handleLogout() {
+            playSound('sound-click');
+            Swal.fire({
+                title: 'ออกจากระบบ?',
+                text: "คุณต้องการออกจากบัญชีผู้ใช้งานนี้ใช่หรือไม่?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'ออกจากระบบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.clear(); // ล้างความจำประวัติทั้งหมดในเครื่อง
+                    currentUser = null;
+                    document.getElementById('page-main').classList.add('hidden');
+                    document.getElementById('page-auth').classList.remove('hidden');
+                    document.getElementById('login-id').value = '';
+                    document.getElementById('login-pw').value = '';
+                }
+            });
+        }
+
+        // ยุบรวมการจัดการทำส่วนเชื่อมโยงข้อมูลหลังผ่านด่านและหน้าโหลดเริ่มต้นสำเร็จ
+        function executeLoginSuccess(studentData, startTimeStr, endTimeStr) {
+            currentUser = studentData;
+            document.getElementById('user-name').innerText = currentUser.name;
+            document.getElementById('user-level').innerText = currentUser.level;
+            
+            document.getElementById('page-auth').classList.add('hidden');
+            document.getElementById('page-main').classList.remove('hidden');
+            
+            startMissionTimer(startTimeStr, endTimeStr);
+            loadDashboard();
+        }
+
         async function loadDashboard() {
             if (!currentUser) return;
             const data = await callAPI({ action: 'getDashboard', student_id: currentUser.id });
             
-            const baseList = document.getElementById('base-list');
-            baseList.innerHTML = '';
-            
             if (data.bases) {
-                data.bases.forEach((base) => {
-                    let statusBadge = '';
-                    let btnAction = '';
-
-                    if (base.status === 'PASSED') {
-                        statusBadge = `<span class="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-bold"><i class="fa-solid fa-circle-check"></i> ผ่านภารกิจ</span>`;
-                        btnAction = `<button disabled class="bg-gray-200 text-gray-400 px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed">เสร็จสิ้น</button>`;
-                    } else {
-                        statusBadge = `<span class="bg-amber-100 text-amber-700 text-xs px-2.5 py-1 rounded-full font-bold"><i class="fa-solid fa-circle-question"></i> คำใบ้: ${base.hint}</span>`;
-                        btnAction = `<button data-id="${base.id}" data-name="${base.name}" class="btn-scan-trigger bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition"><i class="fa-solid fa-qrcode mr-1"></i> สแกนฐาน</button>`;
-                    }
-
-                    baseList.innerHTML += `
-                        <div class="bg-white rounded-xl shadow-sm border p-4 flex justify-between items-center transition hover:shadow-md">
-                            <div class="space-y-1 pr-2">
-                                <h4 class="font-bold text-gray-800 text-sm md:text-base">${base.name}</h4>
-                                <div class="pt-1">${statusBadge}</div>
-                            </div>
-                            <div>${btnAction}</div>
-                        </div>
-                    `;
-                });
-
-                document.querySelectorAll('.btn-scan-trigger').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const baseId = e.currentTarget.getAttribute('data-id');
-                        const baseName = e.currentTarget.getAttribute('data-name');
-                        if (baseId) prepareQRScanner(baseId, baseName);
-                    });
-                });
+                globalBasesData = data.bases; // เก็บค่าเข้าตัวแปร Global
+                renderBaseListUI(); // แยกฟังก์ชันเรนเดอร์ UI เพื่อความยืดหยุ่นในการอัปเดตแบบเรียลไทม์
             }
             loadLeaderboard();
         }
 
-        // 🛠️ อัปเดต: ระบบ Popup ยอมรับข้อตกลงก่อนเปิดสตรีมกล้อง
+        // 🛠️ อัปเดต: ฟังก์ชันคอยคำนวณและวาดปุ่มแสดงสเตตัส Realtime ตามเวลาและสถานะด่านผ่าน
+        function renderBaseListUI() {
+            const baseList = document.getElementById('base-list');
+            baseList.innerHTML = '';
+            
+            globalBasesData.forEach((base) => {
+                let statusBadge = '';
+                let btnAction = '';
+
+                // เคสที่ 1: ตรวจสอบว่าผ่านภารกิจประจำฐานนั้นหรือยัง
+                if (base.status === 'PASSED') {
+                    statusBadge = `<span class="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-bold"><i class="fa-solid fa-circle-check"></i> ผ่านภารกิจเรียบร้อย</span>`;
+                    btnAction = `<button disabled class="bg-gray-300 text-gray-400 px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed border"><i class="fa-solid fa-lock mr-1"></i> เสร็จสิ้น</button>`;
+                } 
+                // เคสที่ 2: ด่านยังไม่ผ่าน แต่เวลาของกิจกรรมภาพรวมยังไม่เริ่มต้น
+                else if (missionTimeStatus === 'WAITING') {
+                    statusBadge = `<span class="bg-blue-50 text-blue-600 text-xs px-2.5 py-1 rounded-full font-semibold"><i class="fa-solid fa-hourglass-start animate-spin text-[10px]"></i> รอสัญญาณเริ่ม...</span>`;
+                    btnAction = `<button disabled class="bg-gray-200 text-gray-400 px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed border"><i class="fa-solid fa-ban mr-1"></i> ยังไม่เริ่ม</button>`;
+                } 
+                // เคสที่ 3: ด่านยังไม่ผ่าน แต่หมดเวลารับคำตอบรวมของกิจกรรมแล้ว
+                else if (missionTimeStatus === 'ENDED') {
+                    statusBadge = `<span class="bg-red-50 text-red-600 text-xs px-2.5 py-1 rounded-full font-semibold"><i class="fa-solid fa-hourglass-end"></i> สิ้นสุดเวลาทำกิจกรรม</span>`;
+                    btnAction = `<button disabled class="bg-gray-200 text-gray-400 px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed border"><i class="fa-solid fa-calendar-xmark mr-1"></i> หมดเวลา</button>`;
+                } 
+                // เคสที่ 4: กำลังแข่งขัน และยังไม่ผ่านด่านนี้ สามารถกดสแกนปกติได้
+                else {
+                    statusBadge = `<span class="bg-amber-100 text-amber-700 text-xs px-2.5 py-1 rounded-full font-bold"><i class="fa-solid fa-circle-question"></i> คำใบ้: ${base.hint}</span>`;
+                    btnAction = `<button data-id="${base.id}" data-name="${base.name}" class="btn-scan-trigger bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition active:scale-95"><i class="fa-solid fa-qrcode mr-1"></i> สแกนฐาน</button>`;
+                }
+
+                baseList.innerHTML += `
+                    <div class="bg-white rounded-xl shadow-sm border p-4 flex justify-between items-center transition hover:shadow-md">
+                        <div class="space-y-1 pr-2">
+                            <h4 class="font-bold text-gray-800 text-sm md:text-base">${base.name}</h4>
+                            <div class="pt-1">${statusBadge}</div>
+                        </div>
+                        <div>${btnAction}</div>
+                    </div>
+                `;
+            });
+
+            // ผูกมัดปุ่มสแกนทั้งหมดที่พร้อมทำงาน
+            document.querySelectorAll('.btn-scan-trigger').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const baseId = e.currentTarget.getAttribute('data-id');
+                    const baseName = e.currentTarget.getAttribute('data-name');
+                    if (baseId) prepareQRScanner(baseId, baseName);
+                });
+            });
+        }
+
         function prepareQRScanner(baseId, baseName) {
             playSound('sound-click');
             
@@ -399,18 +442,15 @@
             });
         }
 
-        // 🚀 อัปเดต: ฟังก์ชันใช้ API คลาสล่าง (Low-level Html5Qrcode) บังคับล็อกกล้องหลังแบบแอพกระเป๋าตังค์
         function openQRScanner(baseId, baseName) {
             currentBaseId = baseId;
             document.getElementById('scanner-target-name').innerText = `โปรดสแกน QR Code ประจำ: ${baseName}`;
             document.getElementById('scanner-modal').classList.remove('hidden');
             
-            // สร้างอินสแตนซ์ของคลาสตัวล่างสุดตรงเข้า Element Id รีโมท
             if (!html5QrcodeInstance) {
                 html5QrcodeInstance = new Html5Qrcode("reader");
             }
             
-            // สั่งสตาร์ทสตรีมมิ่งวิดีโอโดยเจาะจงล็อกให้เปิดเฉพาะกล้องหลัง (facingMode: "environment")
             html5QrcodeInstance.start(
                 { facingMode: "environment" }, 
                 {
@@ -418,25 +458,19 @@
                     qrbox: { width: 250, height: 250 }
                 },
                 (decodedText) => {
-                    // เมื่อสแกนติดคิวอาร์โค้ดสำเร็จ ให้ปิดสตรีมวิดีโอเพื่อคืนทรัพยากรกล้องให้ OS ทันที
                     html5QrcodeInstance.stop().then(() => {
                         document.getElementById('scanner-modal').classList.add('hidden');
                         verifyQRCode(decodedText);
                     }).catch(err => console.log("Stop error:", err));
                 },
-                (errorMessage) => {
-                    // ปล่อยข้าม Log ย่อย ๆ ระหว่างกล้องทำการค้นหาเฟรมคิวอาร์โค้ด
-                }
+                (errorMessage) => {}
             ).catch(error => {
-                // เด้งแจ้งเตือนกรณีที่ระบบปฏิบัติการมือถือปฏิเสธการขอฮาร์ดแวร์จริง
                 document.getElementById('scanner-modal').classList.add('hidden');
                 playSound('sound-wrong');
-                Swal.fire('กล้องขัดข้อง', 'ไม่สามารถเปิดสตรีมวิดีโอกล้องหลังได้ โปรดใช้เบราว์เซอร์มาตรฐานอย่าง Chrome หรือ Safari และตรวจสอบสิทธิ์การแชร์กล้องในมือถืออีกครั้งครับ', 'error');
-                console.error("Camera start error:", error);
+                Swal.fire('กล้องขัดข้อง', 'ไม่สามารถเปิดสตรีมวิดีโอกล้องหลังได้ โปรดใช้เบราว์เซอร์มาตรฐานอย่าง Chrome หรือ Safari', 'error');
             });
         }
 
-        // ฟังก์ชันสั่งกดยกเลิกปิดหน้าจอ และตัดระบบไฟฟ้าสตรีมมิ่งกล้องอย่างปลอดภัย
         function closeQRScanner() {
             if (html5QrcodeInstance && html5QrcodeInstance.isScanning) {
                 html5QrcodeInstance.stop().then(() => {
@@ -587,16 +621,17 @@
                     confirmButtonText: 'รับทราบ'
                 });
             }
-            loadDashboard();
+            loadDashboard(); // จะทำการรีโหลดและวาดปุ่มใหม่ให้เป็นสีเทาทันทีแบบเรียลไทม์
         }
 
+        // 🚀 อัปเดต: โดดเด่นเรื่อง Realtime แสดงอันดับทุกคนทันทีตั้งแต่ผ่านด่านแรก ไม่ดองผลข้ามชั่วโมง
         async function loadLeaderboard() {
             const data = await callAPI({ action: 'getLeaderboard' });
             const container = document.getElementById('leaderboard-list');
             container.innerHTML = '';
 
             if (!data.leaderboard || data.leaderboard.length === 0) {
-                container.innerHTML = `<p class="text-center py-6 text-xs text-gray-400">ยังไม่มีผู้พิชิตภารกิจสำเร็จในขณะนี้</p>`;
+                container.innerHTML = `<p class="text-center py-6 text-xs text-gray-400">ยังไม่มีผู้พิชิตผ่านฐานใด ๆ ในขณะนี้</p>`;
                 return;
             }
 
@@ -613,31 +648,66 @@
                         </div>
                         <div class="text-right">
                             <p class="font-bold text-teal-600">${item.total_score} แต้ม</p>
-                            <p class="text-[10px] text-gray-400"><i class="fa-solid fa-stopwatch"></i> ${item.end_time.substring(11, 19)} น.</p>
+                            <p class="text-[10px] text-gray-400"><i class="fa-solid fa-stopwatch"></i> ${item.end_time ? item.end_time.substring(11, 19) + ' น.' : 'กำลังแข่ง'}</p>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function startMissionTimer(endTimeStr) {
-            const targetTime = new Date(endTimeStr).getTime();
+        // 🛠️ อัปเดต: ระบบนับเวลาอัจฉริยะ รองรับทั้งเงื่อนไข "ก่อนเริ่มงาน" และ "สิ้นสุดงาน" พร้อมอัปเดตปุ่มเรียลไทม์
+        function startMissionTimer(startTimeStr, endTimeStr) {
             const displayElement = document.getElementById('countdown-timer');
+            const badge = document.getElementById('timer-badge');
+            
+            // กรณีไม่มีสายอักขระเวลากำหนดมา ให้เริ่มจับเวลารูปแบบเปิดอิสระ
+            if(!endTimeStr) {
+                displayElement.innerText = "กำลังดำเนินกิจกรรม";
+                missionTimeStatus = 'STARTED';
+                return;
+            }
+
+            const targetStart = startTimeStr ? new Date(startTimeStr).getTime() : 0;
+            const targetEnd = new Date(endTimeStr).getTime();
             
             let timerInterval = setInterval(() => {
                 const now = new Date().getTime();
-                const difference = targetTime - now;
                 
-                if (difference <= 0) {
-                    clearInterval(timerInterval);
-                    displayElement.innerText = "หมดเวลาภารกิจ";
-                    playSound('sound-timer');
-                    Swal.fire('หมดเวลาทำภารกิจ!', 'ระบบปิดรับคำตอบเรียบร้อยแล้ว', 'error').then(() => {
-                        location.reload();
-                    });
+                // 1. เคสตรวจสอบเวลา: ยังไม่ถึงเวลาเริ่มต้นกิจกรรม
+                if (targetStart > 0 && now < targetStart) {
+                    missionTimeStatus = 'WAITING';
+                    badge.className = "bg-blue-500/20 px-3 py-1.5 rounded-full border border-blue-400 flex items-center space-x-2";
+                    
+                    const diffStart = targetStart - now;
+                    const mins = Math.floor((diffStart % (1000 * 60 * 60)) / (1000 * 60));
+                    const secs = Math.floor((diffStart % (1000 * 60)) / 1000);
+                    displayElement.innerText = `เริ่มใน ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                    renderBaseListUI(); // อัปเดตปุ่มเป็นสีเทา "ยังไม่เริ่ม"
                     return;
                 }
                 
+                // 2. เคสตรวจสอบเวลา: อยู่ในช่วงกำลังทำภารกิจปกติ
+                const difference = targetEnd - now;
+                
+                if (difference <= 0) {
+                    clearInterval(timerInterval);
+                    missionTimeStatus = 'ENDED';
+                    badge.className = "bg-gray-500/20 px-3 py-1.5 rounded-full border border-gray-400 flex items-center space-x-2 text-gray-400";
+                    displayElement.innerText = "หมดเวลาภารกิจ";
+                    renderBaseListUI(); // ล็อกปุ่มทั้งหมดเป็นสีเทา "หมดเวลา" ทันทีแบบเรียลไทม์
+                    
+                    playSound('sound-timer');
+                    Swal.fire('หมดเวลาทำภารกิจ!', 'ระบบกิจกรรมส่วนกลางได้ทำการปิดรับการตรวจคิวอาร์โค้ดเรียบร้อยแล้ว', 'error');
+                    return;
+                }
+                
+                // กำลังแข่งขันปกติ
+                if (missionTimeStatus !== 'STARTED') {
+                    missionTimeStatus = 'STARTED';
+                    badge.className = "bg-red-500/20 px-3 py-1.5 rounded-full border border-red-400 flex items-center space-x-2";
+                    renderBaseListUI(); // ปลดล็อกปุ่มสีเทาให้กลายเป็นปุ่มสแกนสีเขียวปกติทันที
+                }
+
                 const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((difference % (1000 * 60)) / 1000);
@@ -664,6 +734,7 @@
                 contentRank.classList.remove('hidden');
                 tabMap.className = "flex-1 py-3 text-center border-b-2 border-transparent text-gray-500 font-semibold";
                 tabRank.className = "flex-1 py-3 text-center border-b-2 border-teal-600 font-bold text-teal-600";
+                loadLeaderboard(); // รีโหลดคะแนนแบบด่วนเมื่อเด็กกดเข้าแท็บอันดับ
             }
         }
 
@@ -676,6 +747,17 @@
             document.getElementById('tab-rank').addEventListener('click', () => handleTabSwitch('rank'));
             document.getElementById('btn-next-quiz').addEventListener('click', handleNextQuiz);
             document.getElementById('btn-close-scanner').addEventListener('click', closeQRScanner);
+            document.getElementById('btn-logout').addEventListener('click', handleLogout);
+
+            // 🛠️ ตรวจสอบระบบ LocalStorage ตอนโหลดหน้าจอครั้งแรก (Auto-Login Setup)
+            const cachedUser = localStorage.getItem('mutec_user');
+            const cachedEnd = localStorage.getItem('mutec_mission_end');
+            const cachedStart = localStorage.getItem('mutec_mission_start');
+
+            if (cachedUser) {
+                // ถ้ามีข้อมูลเซสชันเดิมค้างอยู่ ให้ข้ามหน้าล็อคอินเข้าแอปได้ทันที
+                executeLoginSuccess(JSON.parse(cachedUser), cachedStart, cachedEnd);
+            }
         });
     </script>
 </body>
