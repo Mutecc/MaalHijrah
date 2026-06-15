@@ -15,6 +15,21 @@
     <style>
         body { font-family: 'Sarabun', sans-serif; }
         .bg-islamic { background: linear-gradient(135deg, #0f766e, #115e59, #134e4a); }
+        
+        /* แอนิเมชันเส้นเลเซอร์วิ่งสแกน */
+        @keyframes laserMove {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+        .scanner-laser {
+            animation: laserMove 2.5s infinite linear;
+        }
+        /* ซ่อนข้อความและปุ่มมาตรฐานที่ดูรกของไลบรารีต้นทาง */
+        #reader img { display: none !important; }
+        #reader header { display: none !important; }
+        #reader div { border: none !important; }
+        #reader button { display: none !important; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen text-gray-800">
@@ -80,8 +95,6 @@
                             <option value="ปวช.1">ปวช.1</option>
                             <option value="ปวช.2">ปวช.2</option>
                             <option value="ปวช.3">ปวช.3</option>
-                            <option value="ปวส.1">ปวส.1</option>
-                            <option value="ปวส.2">ปวส.2</option>
                         </select>
                     </div>
                 </div>
@@ -163,12 +176,32 @@
         </div>
     </div>
 
-    <div id="scanner-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-4 w-full max-w-sm text-center">
-            <h3 class="font-bold text-teal-800 mb-2">กล้องสแกนคิวอาร์โค้ด</h3>
-            <p class="text-xs text-gray-500 mb-4">กรุณาส่องไปที่ป้ายคิวอาร์โค้ดประจำฐาน</p>
-            <div id="reader" class="w-full overflow-hidden rounded-xl"></div>
-            <button id="btn-close-scanner" class="mt-4 px-6 py-2 bg-gray-200 text-gray-700 font-bold rounded-xl text-sm">ยกเลิก</button>
+    <div id="scanner-modal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex flex-col items-center justify-between p-6">
+        
+        <div class="text-center w-full pt-4">
+            <h3 class="font-bold text-lg text-white tracking-wide"><i class="fa-solid fa-line-columns text-teal-400 mr-2"></i>ศูนย์สแกนตรวจสอบภารกิจ</h3>
+            <p class="text-xs text-gray-400 mt-1" id="scanner-target-name">กำลังตรวจสอบเป้าหมายฐาน...</p>
+        </div>
+
+        <div class="relative w-72 h-72 md:w-80 md:h-80 mx-auto my-auto flex items-center justify-center">
+            
+            <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-teal-400 rounded-tl-lg"></div>
+            <div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-teal-400 rounded-tr-lg"></div>
+            <div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-teal-400 rounded-bl-lg"></div>
+            <div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-teal-400 rounded-br-lg"></div>
+            
+            <div class="scanner-laser absolute left-2 right-2 h-1 bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_12px_rgba(45,212,191,0.8)] z-10 rounded-full"></div>
+
+            <div id="reader" class="w-full h-full object-cover overflow-hidden rounded-lg opacity-80"></div>
+        </div>
+
+        <div class="w-full text-center pb-6">
+            <p class="text-xs text-teal-300/80 mb-6 bg-teal-950/40 py-2 px-4 rounded-full max-w-xs mx-auto border border-teal-900/40">
+                <i class="fa-solid fa-expand mr-1.5 animate-pulse"></i> จัดวางคิวอาร์โค้ดให้อยู่ในกรอบเล็งเป้า
+            </p>
+            <button id="btn-close-scanner" class="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-2xl text-sm transition duration-200 border border-white/10 backdrop-blur-md active:scale-95">
+                <i class="fa-solid fa-xmark mr-2"></i> ปิดหน้าจอกล้อง
+            </button>
         </div>
     </div>
 
@@ -305,7 +338,7 @@
                         btnAction = `<button disabled class="bg-gray-200 text-gray-400 px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed">เสร็จสิ้น</button>`;
                     } else {
                         statusBadge = `<span class="bg-amber-100 text-amber-700 text-xs px-2.5 py-1 rounded-full font-bold"><i class="fa-solid fa-circle-question"></i> คำใบ้: ${base.hint}</span>`;
-                        btnAction = `<button data-id="${base.id}" class="btn-scan-trigger bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition"><i class="fa-solid fa-qrcode mr-1"></i> สแกนฐาน</button>`;
+                        btnAction = `<button data-id="${base.id}" data-name="${base.name}" class="btn-scan-trigger bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition"><i class="fa-solid fa-qrcode mr-1"></i> สแกนฐาน</button>`;
                     }
 
                     baseList.innerHTML += `
@@ -323,20 +356,28 @@
                 document.querySelectorAll('.btn-scan-trigger').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const baseId = e.currentTarget.getAttribute('data-id');
-                        if (baseId) openQRScanner(baseId);
+                        const baseName = e.currentTarget.getAttribute('data-name');
+                        if (baseId) openQRScanner(baseId, baseName);
                     });
                 });
             }
             loadLeaderboard();
         }
 
-        // 9. ตัวควบคุมอุปกรณ์กล้องสแกนคิวอาร์โค้ด
-        function openQRScanner(baseId) {
+        // 9. ตัวควบคุมอุปกรณ์กล้องสแกนคิวอาร์โค้ดแบบ Custom HUD ดีไซน์ทันสมัย
+        function openQRScanner(baseId, baseName) {
             playSound('sound-click');
             currentBaseId = baseId;
+            document.getElementById('scanner-target-name').innerText = `โปรดสแกน QR Code ประจำ: ${baseName}`;
             document.getElementById('scanner-modal').classList.remove('hidden');
             
-            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+            // เรียกใช้งานกล้องผ่านไลบรารีแบบระบุขนาดสี่เหลี่ยมจัตุรัสให้สัมพันธ์กับกรอบ HUD ของแอนิเมชัน
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
+                fps: 24, // เพิ่มเฟรมเรตเพื่อให้สแกนได้ลื่นไหล ไวขึ้น ไม่กระตุก
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0
+            });
+            
             html5QrcodeScanner.render((decodedText) => {
                 html5QrcodeScanner.clear();
                 document.getElementById('scanner-modal').classList.add('hidden');
