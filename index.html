@@ -221,9 +221,8 @@
         let selectedAnswer = null;
         let html5QrcodeInstance = null;
         
-        // ตัวแปรเก็บสถานะเวลาส่วนกลางของกิจกรรม
-        let missionTimeStatus = 'WAITING'; // WAITING = ยังไม่เริ่ม, STARTED = กำลังแข่ง, ENDED = หมดเวลา
-        let globalBasesData = []; // เก็บสำเนาข้อมูลด่านล่าสุดไว้ประมวลผล Realtime บนหน้าบ้าน
+        let missionTimeStatus = 'WAITING'; // WAITING, STARTED, ENDED
+        let globalBasesData = []; 
 
         function playSound(audioId) {
             const audio = document.getElementById(audioId);
@@ -306,10 +305,9 @@
             const data = await callAPI({ action: 'login', student_id, password });
             
             if (data.status === 'success') {
-                // บันทึกข้อมูลลงเครื่องผู้ใช้ (LocalStorage) เพื่อรีเฟรชหน้าจอแล้วล็อกอินไม่หลุด
                 localStorage.setItem('mutec_user', JSON.stringify(data.student));
                 localStorage.setItem('mutec_mission_end', data.mission_end);
-                localStorage.setItem('mutec_mission_start', data.mission_start || ""); // เพิ่มกรณีเผื่อต้องการเก็บเวลาเริ่มด้วย
+                localStorage.setItem('mutec_mission_start', data.mission_start || ""); 
 
                 executeLoginSuccess(data.student, data.mission_start, data.mission_end);
                 Swal.close();
@@ -319,7 +317,6 @@
             }
         }
 
-        // ฟังก์ชันศูนย์กลางจัดการเคลียร์ค่ากลับสู่หน้าแรกเมื่อกดยกเลิกสิทธิ์
         function handleLogout() {
             playSound('sound-click');
             Swal.fire({
@@ -333,7 +330,7 @@
                 cancelButtonText: 'ยกเลิก'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    localStorage.clear(); // ล้างความจำประวัติทั้งหมดในเครื่อง
+                    localStorage.clear(); 
                     currentUser = null;
                     document.getElementById('page-main').classList.add('hidden');
                     document.getElementById('page-auth').classList.remove('hidden');
@@ -343,7 +340,6 @@
             });
         }
 
-        // ยุบรวมการจัดการทำส่วนเชื่อมโยงข้อมูลหลังผ่านด่านและหน้าโหลดเริ่มต้นสำเร็จ
         function executeLoginSuccess(studentData, startTimeStr, endTimeStr) {
             currentUser = studentData;
             document.getElementById('user-name').innerText = currentUser.name;
@@ -361,13 +357,12 @@
             const data = await callAPI({ action: 'getDashboard', student_id: currentUser.id });
             
             if (data.bases) {
-                globalBasesData = data.bases; // เก็บค่าเข้าตัวแปร Global
-                renderBaseListUI(); // แยกฟังก์ชันเรนเดอร์ UI เพื่อความยืดหยุ่นในการอัปเดตแบบเรียลไทม์
+                globalBasesData = data.bases; 
+                renderBaseListUI(); 
             }
             loadLeaderboard();
         }
 
-        // 🛠️ อัปเดต: ฟังก์ชันคอยคำนวณและวาดปุ่มแสดงสเตตัส Realtime ตามเวลาและสถานะด่านผ่าน
         function renderBaseListUI() {
             const baseList = document.getElementById('base-list');
             baseList.innerHTML = '';
@@ -376,22 +371,18 @@
                 let statusBadge = '';
                 let btnAction = '';
 
-                // เคสที่ 1: ตรวจสอบว่าผ่านภารกิจประจำฐานนั้นหรือยัง
                 if (base.status === 'PASSED') {
                     statusBadge = `<span class="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-bold"><i class="fa-solid fa-circle-check"></i> ผ่านภารกิจเรียบร้อย</span>`;
                     btnAction = `<button disabled class="bg-gray-300 text-gray-400 px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed border"><i class="fa-solid fa-lock mr-1"></i> เสร็จสิ้น</button>`;
                 } 
-                // เคสที่ 2: ด่านยังไม่ผ่าน แต่เวลาของกิจกรรมภาพรวมยังไม่เริ่มต้น
                 else if (missionTimeStatus === 'WAITING') {
                     statusBadge = `<span class="bg-blue-50 text-blue-600 text-xs px-2.5 py-1 rounded-full font-semibold"><i class="fa-solid fa-hourglass-start animate-spin text-[10px]"></i> รอสัญญาณเริ่ม...</span>`;
                     btnAction = `<button disabled class="bg-gray-200 text-gray-400 px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed border"><i class="fa-solid fa-ban mr-1"></i> ยังไม่เริ่ม</button>`;
                 } 
-                // เคสที่ 3: ด่านยังไม่ผ่าน แต่หมดเวลารับคำตอบรวมของกิจกรรมแล้ว
                 else if (missionTimeStatus === 'ENDED') {
                     statusBadge = `<span class="bg-red-50 text-red-600 text-xs px-2.5 py-1 rounded-full font-semibold"><i class="fa-solid fa-hourglass-end"></i> สิ้นสุดเวลาทำกิจกรรม</span>`;
                     btnAction = `<button disabled class="bg-gray-200 text-gray-400 px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed border"><i class="fa-solid fa-calendar-xmark mr-1"></i> หมดเวลา</button>`;
                 } 
-                // เคสที่ 4: กำลังแข่งขัน และยังไม่ผ่านด่านนี้ สามารถกดสแกนปกติได้
                 else {
                     statusBadge = `<span class="bg-amber-100 text-amber-700 text-xs px-2.5 py-1 rounded-full font-bold"><i class="fa-solid fa-circle-question"></i> คำใบ้: ${base.hint}</span>`;
                     btnAction = `<button data-id="${base.id}" data-name="${base.name}" class="btn-scan-trigger bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition active:scale-95"><i class="fa-solid fa-qrcode mr-1"></i> สแกนฐาน</button>`;
@@ -408,7 +399,6 @@
                 `;
             });
 
-            // ผูกมัดปุ่มสแกนทั้งหมดที่พร้อมทำงาน
             document.querySelectorAll('.btn-scan-trigger').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const baseId = e.currentTarget.getAttribute('data-id');
@@ -590,41 +580,75 @@
             }
         }
 
+        // 🌟 ฟังก์ชันที่ปรับปรุงใหม่: ล็อกปุ่มสีเทา "เสร็จสิ้น" และสั่งโหลดบอร์ดทันทีเมื่อเงื่อนไขผ่านเกณฑ์สดๆ หน้าบ้าน
         async function finishQuizSession() {
             if (!currentUser || !currentBaseId) return;
             Swal.showLoading();
-            const data = await callAPI({
-                action: 'submitQuiz',
-                student_id: currentUser.id,
-                base_id: currentBaseId,
-                score: scoreCounter
-            });
-            Swal.close();
-
-            document.getElementById('page-quiz').classList.add('hidden');
-            document.getElementById('page-main').classList.remove('hidden');
             
-            if (data.resultStatus === 'PASSED') {
-                playSound('sound-success');
-                Swal.fire({
-                    icon: 'success',
-                    title: 'ยินดีด้วย คุณผ่านฐานนี้!',
-                    text: `คุณตอบถูกทั้งหมด ${data.score}/5 ข้อ ผ่านเกณฑ์เรียบร้อย`,
-                    confirmButtonText: 'ลุยฐานต่อไป'
+            try {
+                const data = await callAPI({
+                    action: 'submitQuiz',
+                    student_id: currentUser.id,
+                    base_id: currentBaseId,
+                    score: scoreCounter
                 });
-            } else {
-                playSound('sound-wrong');
-                Swal.fire({
-                    icon: 'error',
-                    title: 'คุณไม่ผ่านเกณฑ์!',
-                    text: `คุณได้คะแนน ${data.score}/5 ข้อ (ต้องผ่าน 3 ข้อขึ้นไป) โปรดกลับไปตรวจคำใบ้และสแกนทดสอบใหม่อีกครั้ง`,
-                    confirmButtonText: 'รับทราบ'
-                });
+                Swal.close();
+
+                document.getElementById('page-quiz').classList.add('hidden');
+                document.getElementById('page-main').classList.remove('hidden');
+                
+                // ตรวจสอบสดหน้าบ้านว่าตอบถูก 3 ข้อขึ้นไป หรือเช็คสถานะการตอบกลับ
+                if (scoreCounter >= 3 || (data && data.resultStatus === 'PASSED')) {
+                    playSound('sound-success');
+                    
+                    // 🔒 [PATCH CODE] สั่งอัปเดตเปลี่ยนสถานะเป็นผ่านในหน่วยความจำเครื่องทันที
+                    if (globalBasesData && globalBasesData.length > 0) {
+                        let targetBase = globalBasesData.find(b => b.id === currentBaseId);
+                        if (targetBase) {
+                            targetBase.status = 'PASSED'; 
+                        }
+                    }
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ยินดีด้วย คุณผ่านฐานนี้!',
+                        text: `คุณตอบถูกทั้งหมด ${scoreCounter}/5 ข้อ ผ่านเกณฑ์เรียบร้อย`,
+                        confirmButtonText: 'ลุยฐานต่อไป'
+                    });
+                } else {
+                    playSound('sound-wrong');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'คุณไม่ผ่านเกณฑ์!',
+                        text: `คุณได้คะแนน ${scoreCounter}/5 ข้อ (ต้องผ่าน 3 ข้อขึ้นไป) โปรดลองสแกนใหม่อีกครั้ง`,
+                        confirmButtonText: 'รับทราบ'
+                    });
+                }
+                
+                // 🔄 สั่งวาดปุ่มใหม่ให้กลายเป็น "สีเทา (เสร็จสิ้น)" และล็อกทันตาเห็น
+                renderBaseListUI(); 
+                
+                // 📊 กระตุ้นการดึงคะแนนบอร์ดใหม่เพื่อขยับอันดับแบบเรียลไทม์
+                loadLeaderboard();
+                
+            } catch (error) {
+                Swal.close();
+                console.error("Submit quiz error:", error);
+                
+                // กรณีอินเทอร์เน็ตขัดข้องกลางคันแต่เด็กทำผ่านเกณฑ์ ให้สั่งล็อกปุ่มไว้ก่อนเพื่อสิทธิ์ของเด็ก
+                if (scoreCounter >= 3) {
+                    if (globalBasesData) {
+                        let targetBase = globalBasesData.find(b => b.id === currentBaseId);
+                        if (targetBase) targetBase.status = 'PASSED';
+                    }
+                    renderBaseListUI();
+                    loadLeaderboard();
+                }
+                document.getElementById('page-quiz').classList.add('hidden');
+                document.getElementById('page-main').classList.remove('hidden');
             }
-            loadDashboard(); // จะทำการรีโหลดและวาดปุ่มใหม่ให้เป็นสีเทาทันทีแบบเรียลไทม์
         }
 
-        // 🚀 อัปเดต: โดดเด่นเรื่อง Realtime แสดงอันดับทุกคนทันทีตั้งแต่ผ่านด่านแรก ไม่ดองผลข้ามชั่วโมง
         async function loadLeaderboard() {
             const data = await callAPI({ action: 'getLeaderboard' });
             const container = document.getElementById('leaderboard-list');
@@ -655,12 +679,10 @@
             });
         }
 
-        // 🛠️ อัปเดต: ระบบนับเวลาอัจฉริยะ รองรับทั้งเงื่อนไข "ก่อนเริ่มงาน" และ "สิ้นสุดงาน" พร้อมอัปเดตปุ่มเรียลไทม์
         function startMissionTimer(startTimeStr, endTimeStr) {
             const displayElement = document.getElementById('countdown-timer');
             const badge = document.getElementById('timer-badge');
             
-            // กรณีไม่มีสายอักขระเวลากำหนดมา ให้เริ่มจับเวลารูปแบบเปิดอิสระ
             if(!endTimeStr) {
                 displayElement.innerText = "กำลังดำเนินกิจกรรม";
                 missionTimeStatus = 'STARTED';
@@ -673,7 +695,6 @@
             let timerInterval = setInterval(() => {
                 const now = new Date().getTime();
                 
-                // 1. เคสตรวจสอบเวลา: ยังไม่ถึงเวลาเริ่มต้นกิจกรรม
                 if (targetStart > 0 && now < targetStart) {
                     missionTimeStatus = 'WAITING';
                     badge.className = "bg-blue-500/20 px-3 py-1.5 rounded-full border border-blue-400 flex items-center space-x-2";
@@ -682,11 +703,10 @@
                     const mins = Math.floor((diffStart % (1000 * 60 * 60)) / (1000 * 60));
                     const secs = Math.floor((diffStart % (1000 * 60)) / 1000);
                     displayElement.innerText = `เริ่มใน ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-                    renderBaseListUI(); // อัปเดตปุ่มเป็นสีเทา "ยังไม่เริ่ม"
+                    renderBaseListUI(); 
                     return;
                 }
                 
-                // 2. เคสตรวจสอบเวลา: อยู่ในช่วงกำลังทำภารกิจปกติ
                 const difference = targetEnd - now;
                 
                 if (difference <= 0) {
@@ -694,18 +714,17 @@
                     missionTimeStatus = 'ENDED';
                     badge.className = "bg-gray-500/20 px-3 py-1.5 rounded-full border border-gray-400 flex items-center space-x-2 text-gray-400";
                     displayElement.innerText = "หมดเวลาภารกิจ";
-                    renderBaseListUI(); // ล็อกปุ่มทั้งหมดเป็นสีเทา "หมดเวลา" ทันทีแบบเรียลไทม์
+                    renderBaseListUI(); 
                     
                     playSound('sound-timer');
                     Swal.fire('หมดเวลาทำภารกิจ!', 'ระบบกิจกรรมส่วนกลางได้ทำการปิดรับการตรวจคิวอาร์โค้ดเรียบร้อยแล้ว', 'error');
                     return;
                 }
                 
-                // กำลังแข่งขันปกติ
                 if (missionTimeStatus !== 'STARTED') {
                     missionTimeStatus = 'STARTED';
                     badge.className = "bg-red-500/20 px-3 py-1.5 rounded-full border border-red-400 flex items-center space-x-2";
-                    renderBaseListUI(); // ปลดล็อกปุ่มสีเทาให้กลายเป็นปุ่มสแกนสีเขียวปกติทันที
+                    renderBaseListUI(); 
                 }
 
                 const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -734,7 +753,7 @@
                 contentRank.classList.remove('hidden');
                 tabMap.className = "flex-1 py-3 text-center border-b-2 border-transparent text-gray-500 font-semibold";
                 tabRank.className = "flex-1 py-3 text-center border-b-2 border-teal-600 font-bold text-teal-600";
-                loadLeaderboard(); // รีโหลดคะแนนแบบด่วนเมื่อเด็กกดเข้าแท็บอันดับ
+                loadLeaderboard(); 
             }
         }
 
@@ -749,13 +768,11 @@
             document.getElementById('btn-close-scanner').addEventListener('click', closeQRScanner);
             document.getElementById('btn-logout').addEventListener('click', handleLogout);
 
-            // 🛠️ ตรวจสอบระบบ LocalStorage ตอนโหลดหน้าจอครั้งแรก (Auto-Login Setup)
             const cachedUser = localStorage.getItem('mutec_user');
             const cachedEnd = localStorage.getItem('mutec_mission_end');
             const cachedStart = localStorage.getItem('mutec_mission_start');
 
             if (cachedUser) {
-                // ถ้ามีข้อมูลเซสชันเดิมค้างอยู่ ให้ข้ามหน้าล็อคอินเข้าแอปได้ทันที
                 executeLoginSuccess(JSON.parse(cachedUser), cachedStart, cachedEnd);
             }
         });
